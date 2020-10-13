@@ -51,4 +51,6 @@ class Character {
     @SerializedName("created")
     @Expose
     var created: String? = null
+
+    var isFavorite: Boolean = false
 }
