@@ -23,6 +23,8 @@ class DetailPictureFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
+        //------------------ CREATION DE LA VUE --------------------
+
         val myCharacterPicture = arguments!!.getSerializable("myCharacterImage") as Character
 
         val myCharacterZoomedImageView = (view.findViewById<View>(R.id.myCharacterZoomedImageView) as ImageView)
@@ -32,6 +34,8 @@ class DetailPictureFragment : Fragment() {
         } catch (e: Exception) {
             e.message
         }
+
+        //----------------- GESTION DU RETOUR PRECEDENT -------------------
 
         view.setOnClickListener{
             activity?.onBackPressed()

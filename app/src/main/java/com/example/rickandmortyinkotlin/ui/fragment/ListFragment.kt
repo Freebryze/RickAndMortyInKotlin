@@ -64,6 +64,8 @@ class ListFragment: Fragment() {
 
     }
 
+    //--------------- FONCTION DE LOAD DES CHARACTERS ---------------
+
     fun loadPages(page : Int){
 
         val callCharacterList: Call<Example> = service.getPage(page)

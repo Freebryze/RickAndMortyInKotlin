@@ -34,24 +34,6 @@ class DetailCharacterFragment : Fragment() {
         val myCharacterImageView = (view.findViewById<View>(R.id.myCharacterImageView) as ImageView)
 
 
-        myCharacterImageView.setOnClickListener{
-
-            val bundle = Bundle()
-            bundle.putSerializable("myCharacterImage",myCharacter)
-            val fragobj = DetailPictureFragment()
-            fragobj.setArguments(bundle)
-
-            val transaction = (it.context as MainActivity)
-                .supportFragmentManager.beginTransaction()
-
-            transaction
-                /*.setCustomAnimations(android.R.anim.slide_in_left,android.R.anim.slide_out_right,android.R.anim.slide_in_left,android.R.anim.slide_out_right)*/
-                .replace(R.id.fragment_container, fragobj)
-                .addToBackStack("DetailCharacterFragment")
-                .commit()
-
-        }
-
         try {
             Picasso.get().load(myCharacter.image).resize(200, 200).into(myCharacterImageView)
         } catch (e: Exception) {
@@ -90,11 +72,30 @@ class DetailCharacterFragment : Fragment() {
                     )
                 )
             }
+
         }
 
-        //----------------- GESTION DU RETOUR -------------------
+        //--------------- OUVERTURE D'UN NOUVEAU FRAGMENT --------------
 
+        myCharacterImageView.setOnClickListener{
 
+            val bundle = Bundle()
+            bundle.putSerializable("myCharacterImage",myCharacter)
+            val fragobj = DetailPictureFragment()
+            fragobj.setArguments(bundle)
+
+            val transaction = (it.context as MainActivity)
+                .supportFragmentManager.beginTransaction()
+
+            transaction
+                /*.setCustomAnimations(android.R.anim.slide_in_left,android.R.anim.slide_out_right,android.R.anim.slide_in_left,android.R.anim.slide_out_right)*/
+                .replace(R.id.fragment_container, fragobj)
+                .addToBackStack("DetailCharacterFragment")
+                .commit()
+
+        }
+
+        //----------------- GESTION DU RETOUR PRECEDENT -------------------
 
         view.setOnClickListener{
             activity?.onBackPressed()

@@ -115,7 +115,7 @@ class MyAdapter(characterList: ArrayList<Character>) :
             isNotFavoriteView.visibility = View.VISIBLE
         }
 
-        // ---------------------- FAVORIS ET OUVERTURE DU FRAGMENT -----------------------
+        // ----------------------OUVERTURE DU FRAGMENT -----------------------
 
         holder.itemView.setOnClickListener {
 
@@ -132,6 +132,8 @@ class MyAdapter(characterList: ArrayList<Character>) :
                 .addToBackStack("ListFragment")
                 .commit()
         }
+
+        // ---------------------- GESTION DES FAVORIS -----------------------
 
         holder.itemView.setOnLongClickListener {
 
@@ -161,6 +163,7 @@ class MyAdapter(characterList: ArrayList<Character>) :
         }
 
     }
+
 
 
 
