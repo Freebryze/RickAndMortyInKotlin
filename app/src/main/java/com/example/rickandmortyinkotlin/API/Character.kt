@@ -2,8 +2,9 @@ package com.example.rickandmortyinkotlin.API
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import java.io.Serializable
 
-class Character {
+class Character : Serializable{
     @SerializedName("id")
     @Expose
     var id: Int? = null

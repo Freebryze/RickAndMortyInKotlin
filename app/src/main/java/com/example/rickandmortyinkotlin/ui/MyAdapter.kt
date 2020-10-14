@@ -2,7 +2,7 @@ package com.example.rickandmortyinkotlin.ui
 
 import android.content.Context
 import android.content.SharedPreferences
-import android.graphics.Color
+import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -12,8 +12,10 @@ import androidx.core.content.ContextCompat
 import androidx.recyclerview.widget.RecyclerView
 import com.example.rickandmortyinkotlin.API.Character
 import com.example.rickandmortyinkotlin.R
+import com.example.rickandmortyinkotlin.ui.fragment.DetailCharacterFragment
 import com.google.gson.Gson
 import com.squareup.picasso.Picasso
+
 
 class MyAdapter(characterList: ArrayList<Character>) :
     RecyclerView.Adapter<MyAdapter.MyViewHolder>() {
@@ -28,13 +30,11 @@ class MyAdapter(characterList: ArrayList<Character>) :
 
     lateinit var mPrefs: SharedPreferences
     lateinit var prefsEditor: SharedPreferences.Editor
-    lateinit var favoriCharacterList : ArrayList<Character>
+    var favoriCharacterList = ArrayList<Character>()
     val PREFERENCE_FILE_KEY = "saves"
 
 
-    class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
-
-    }
+    class MyViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {}
 
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): MyViewHolder {
@@ -42,22 +42,13 @@ class MyAdapter(characterList: ArrayList<Character>) :
             LayoutInflater.from(parent.context).inflate(R.layout.character_item, parent, false)
         val viewHolder = MyViewHolder(v)
 
-        viewHolder.itemView.setOnClickListener {
-            println("testPetitClick")
-        }
-
-        viewHolder.itemView.setOnLongClickListener {
-            println("TestGrosClick")
-            true
-        }
 
         //--------------- FAVORIS -------------------
 
         mPrefs = parent.context.getSharedPreferences(PREFERENCE_FILE_KEY, Context.MODE_PRIVATE)
         prefsEditor = mPrefs.edit()
 
-        loadFavoris()
-
+        loadSetFavoris(adapterCharacterList)
 
         return viewHolder
     }
@@ -67,6 +58,9 @@ class MyAdapter(characterList: ArrayList<Character>) :
     }
 
     override fun onBindViewHolder(holder: MyViewHolder, position: Int) {
+
+
+        //----------------- CREATION DE LA VUE ET DES LABELS ---------------------
 
         val me: Character = adapterCharacterList.get(position)
         try {
@@ -78,8 +72,7 @@ class MyAdapter(characterList: ArrayList<Character>) :
 
         (holder.itemView.findViewById<View>(R.id.textViewCharacterName) as TextView).text = me.name
 
-        var textViewStatus =
-            holder.itemView.findViewById<View>(R.id.textViewCharacterStatus) as TextView
+        var textViewStatus = holder.itemView.findViewById<View>(R.id.textViewCharacterStatus) as TextView
         textViewStatus.text = me.status
 
         when (me.status) {
@@ -111,16 +104,79 @@ class MyAdapter(characterList: ArrayList<Character>) :
             }
         }
 
+        val isFavoriteView: ImageView = holder.itemView.findViewById(R.id.isFavorite)
+        val isNotFavoriteView: ImageView = holder.itemView.findViewById(R.id.isNotFavorite)
+
+        if (me.isFavorite) {
+            isFavoriteView.visibility = View.VISIBLE
+            isNotFavoriteView.visibility = View.INVISIBLE
+        } else {
+            isFavoriteView.visibility = View.INVISIBLE
+            isNotFavoriteView.visibility = View.VISIBLE
+        }
+
+        // ---------------------- FAVORIS ET OUVERTURE DU FRAGMENT -----------------------
+
+        holder.itemView.setOnClickListener {
+
+            val bundle = Bundle()
+            bundle.putSerializable("myCharacter",me)
+            val fragobj = DetailCharacterFragment()
+            fragobj.setArguments(bundle)
+
+            val transaction = (it.context as MainActivity)
+                .supportFragmentManager.beginTransaction()
+
+            transaction.setCustomAnimations(android.R.anim.slide_in_left,android.R.anim.slide_out_right,android.R.anim.slide_in_left,android.R.anim.slide_out_right)
+                .add(R.id.fragment_container, fragobj)
+                .addToBackStack("ListFragment")
+                .commit()
+        }
+
+        holder.itemView.setOnLongClickListener {
+
+            val savedCharacters = mPrefs.all as Map<String, String>
+            val gson = Gson()
+
+            if (savedCharacters.containsKey("${me.id}")) {
+                prefsEditor.remove("${me.id}")
+                me.isFavorite = false
+                println(me.name)
+
+            } else {
+                me.isFavorite = true
+                val json = gson.toJson(me)
+                prefsEditor.putString("${me.id}", json)
+            }
+            prefsEditor.commit()
+
+            if (me.isFavorite) {
+                isFavoriteView.visibility = View.VISIBLE
+                isNotFavoriteView.visibility = View.INVISIBLE
+            } else {
+                isFavoriteView.visibility = View.INVISIBLE
+                isNotFavoriteView.visibility = View.VISIBLE
+            }
+            true
+        }
+
     }
 
 
 
-    fun loadFavoris(){
+    fun loadSetFavoris(mCharacterListToCompare :ArrayList<Character>){
         val gsonFavori = Gson()
         val savedCharacters = mPrefs.all as Map<String, String?>
         for (json in savedCharacters.values) {
             val savedCharacter = gsonFavori.fromJson(json, Character::class.java)
             favoriCharacterList.add(savedCharacter)
+        }
+        for (favori in favoriCharacterList) {
+            for (mCharac in mCharacterListToCompare) {
+                if (favori.id == mCharac.id){
+                    mCharac.isFavorite = true
+                }
+            }
         }
     }
 }
